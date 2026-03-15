@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Username Generator by TechnoPiggy</title>
+    <style>
+        /* ---------- Font ---------- */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap');
+
+        /* ---------- Page Setup ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a2e;
+            background-image:
+                radial-gradient(circle at 20% 50%, #16213e 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, #0f3460 0%, transparent 40%),
+                radial-gradient(circle at 50% 80%, #1a1a2e 0%, transparent 60%);
+            color: #e0e0e0;
+            padding: 20px;
+        }
+
+        /* ---------- Main Card ---------- */
+        .card {
+            background: #16213e;
+            border: 2px solid #0f3460;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 480px;
+            width: 100%;
+            box-shadow:
+                0 0 40px rgba(15, 52, 96, 0.5),
+                0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        /* ---------- Title ---------- */
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #e94560;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: #7a8ba6;
+            margin-bottom: 30px;
+        }
+
+        /* ---------- Username Display ---------- */
+        .username-display {
+            background: #1a1a2e;
+            border: 2px solid #0f3460;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.3s;
+        }
+
+        .username-display:hover {
+            border-color: #e94560;
+        }
+
+        .username-text {
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: #53d8fb;
+            letter-spacing: 1px;
+        }
+
+        .placeholder-text {
+            color: #4a5568;
+            font-size: 1.1rem;
+        }
+
+        /* ---------- Buttons ---------- */
+        .buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        button {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0px);
+        }
+
+        .btn-generate {
+            background: #e94560;
+            color: white;
+            flex: 1;
+            min-width: 160px;
+        }
+
+        .btn-copy {
+            background: #0f3460;
+            color: #53d8fb;
+            min-width: 100px;
+        }
+
+        /* ---------- Copied Message ---------- */
+        .copied-msg {
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #53d8fb;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .copied-msg.show {
+            opacity: 1;
+        }
+
+        /* ---------- Footer ---------- */
+        .footer {
+            margin-top: 24px;
+            font-size: 0.8rem;
+            color: #4a5568;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="title">Username Generator</div>
+    <div class="subtitle">by TechnoPiggy</div>
+
+    <div class="username-display" id="display">
+        <span class="placeholder-text" id="username">Click Generate!</span>
+    </div>
+
+    <div class="buttons">
+        <button class="btn-generate" onclick="generate()">Generate</button>
+        <button class="btn-copy" onclick="copyName()">Copy</button>
+    </div>
+
+    <div class="copied-msg" id="copiedMsg">Copied to clipboard!</div>
+
+    <div class="footer">Made with Python... and now JavaScript too!</div>
+</div>
+
+<script>
+    // ---------- Word Lists (same as the Python version!) ----------
+    var adjectives = [
+        "Cool", "Awesome", "Epic", "Mighty", "Swift", "Brave", "Clever",
+        "Daring", "Fierce", "Gentle", "Bold", "Smart", "Quick", "Strong",
+        "Wild", "Crazy", "Super", "Mega", "Ultra", "Hyper", "Fast", "Slow",
+        "Big", "Small", "Tall", "Short", "Happy", "Sad", "Angry", "Calm",
+        "Loud", "Quiet", "Bright", "Dark", "Hot", "Cold", "Wet", "Dry",
+        "Hard", "Soft", "Sharp", "Dull"
+    ];
+
+    var nouns = [
+        "Warrior", "Ninja", "Coder", "Gamer", "Explorer", "Hero", "Wizard",
+        "Knight", "Pirate", "Samurai", "Dragon", "Phoenix", "Tiger", "Eagle",
+        "Wolf", "Bear", "Lion", "Shark", "Snake", "Fox", "Owl", "Raven",
+        "Unicorn", "Mermaid", "Robot", "Alien", "Superhero", "Villain",
+        "Ghost", "Vampire", "Zombie", "Werewolf", "Angel", "Demon", "Giant",
+        "Dwarf", "Elf", "Orc", "Troll", "Goblin"
+    ];
+
+    // ---------- Pick a random item from a list ----------
+    function pickRandom(list) {
+        var index = Math.floor(Math.random() * list.length);
+        return list[index];
+    }
+
+    // ---------- Generate a username (same logic as Python!) ----------
+    function generate() {
+        var adj = pickRandom(adjectives);
+        var noun = pickRandom(nouns);
+        var num = Math.floor(Math.random() * 90) + 10;  // random 10-99
+
+        var username = adj + noun + num;
+
+        // Show it on the page
+        var el = document.getElementById("username");
+        el.textContent = username;
+        el.className = "username-text";
+    }
+
+    // ---------- Copy to clipboard ----------
+    function copyName() {
+        var text = document.getElementById("username").textContent;
+        if (text === "Click Generate!") return;
+
+        navigator.clipboard.writeText(text);
+
+        // Show "Copied!" message for 2 seconds
+        var msg = document.getElementById("copiedMsg");
+        msg.className = "copied-msg show";
+        setTimeout(function() {
+            msg.className = "copied-msg";
+        }, 2000);
+    }
+</script>
+
+</body>
+</html>
